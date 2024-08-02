@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spiral Pattern with Evolutionary Algorithm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let points = [];
+        let numPoints = 100;
+        let increment = 0.1;
+        let maxDistance = 200;
+
+        function setup() {
+            createCanvas(800, 800);
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: random(width),
+                    y: random(height),
+                    color: color(random(255), random(255), random(255)),
+                    targetDistance: random(maxDistance),
+                    targetAngle: random(TWO_PI)
+                });
+            }
+            frameRate(30);
+        }
+
+        function draw() {
+            background(255);
+
+            // 渦巻きの中心位置
+            let centerX = width / 2;
+            let centerY = height / 2;
+
+            // 全ての点の色と位置を進化
+            for (let point of points) {
+                // 色の進化
+                let currentColor = point.color;
+                let r = red(currentColor) + random(-5, 5);
+                let g = green(currentColor) + random(-5, 5);
+                let b = blue(currentColor) + random(-5, 5);
+                point.color = color(constrain(r, 0, 255), constrain(g, 0, 255), constrain(b, 0, 255));
+
+                // ターゲット位置の計算（渦巻きの位置）
+                let targetX = centerX + point.targetDistance * cos(point.targetAngle);
+                let targetY = centerY + point.targetDistance * sin(point.targetAngle);
+
+                // 現在位置とターゲット位置の補間
+                point.x = lerp(point.x, targetX, 0.02);
+                point.y = lerp(point.y, targetY, 0.02);
+
+                // ターゲット位置の更新
+                point.targetAngle += increment;
+                point.targetDistance = min(point.targetDistance + 0.1, maxDistance);
+            }
+
+            // 進化した点の描画
+            for (let point of points) {
+                fill(point.color);
+                noStroke();
+                ellipse(point.x, point.y, 10, 10);
+            }
+        }
+    </script>
+</body>
+</html>
+

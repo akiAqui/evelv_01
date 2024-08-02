@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSL 色相螺旋</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="600" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const maxRadius = Math.min(centerX, centerY) - 10;
+
+        function fibonacci(n) {
+            if (n <= 1) return 1;
+            let a = 1, b = 1;
+            for (let i = 2; i < n; i++) {
+                [a, b] = [b, a + b];
+            }
+            return b;
+        }
+
+        function drawSpiral() {
+            let angle = 0;
+            let radius = 0;
+            let fibIndex = 0;
+
+            while (radius < maxRadius) {
+                const hue = (angle / (2 * Math.PI)) * 360;
+                const saturation = 100;
+                const lightness = (radius / maxRadius) * 100;
+
+                ctx.beginPath();
+                const fibNumber = fibonacci(fibIndex);
+                const startAngle = angle;
+                const endAngle = angle + (2 * Math.PI) / 360;
+                
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.lineWidth = fibNumber;
+                ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                ctx.stroke();
+
+                angle += (2 * Math.PI) / 360;
+                radius += 0.1;
+                fibIndex = (fibIndex + 1) % 10; // Reset Fibonacci sequence every 10 steps
+            }
+        }
+
+        drawSpiral();
+    </script>
+</body>
+</html>

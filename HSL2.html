@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSL色相円 - フィボナッチ半径と線形輝度</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let canvasSize = 600;
+        let maxRadius;
+        let rmin = 1; // 最小の中心部の半径
+        let fibRadii = [rmin];
+        let colorWheel = [];
+        let currentRingIndex;
+
+        let minLightness = 10; // 最小輝度（中心部）
+        let maxLightness = 90; // 最大輝度（外側）
+
+        function setup() {
+            createCanvas(canvasSize, canvasSize);
+            colorMode(HSL, 360, 100, 100);
+            maxRadius = min(width, height) / 2;
+            frameRate(30);
+            noStroke();
+            generateFibonacciRadii();
+            calculateColorWheel();
+            currentRingIndex = colorWheel.length - 1;
+            background(255);
+        }
+
+        function draw() {
+            translate(width / 2, height / 2);
+            if (currentRingIndex >= 0) {
+                drawColorRing(colorWheel[currentRingIndex]);
+                currentRingIndex--;
+            }
+        }
+
+        function generateFibonacciRadii() {
+            while (fibRadii[fibRadii.length - 1] < maxRadius) {
+                //let nextFib = fibRadii[fibRadii.length - 1] + (fibRadii[fibRadii.length - 2] || 0);
+		let nextFib = fibRadii[fibRadii.length - 1] + fibRadii.length;
+                fibRadii.push(nextFib);
+            }
+            // 最後の要素が maxRadius を超えている場合、それを削除
+            if (fibRadii[fibRadii.length - 1] > maxRadius) {
+                fibRadii.pop();
+            }
+        }
+
+        function calculateColorWheel() {
+            for (let i = 0; i < fibRadii.length; i++) {
+                let normalizedIndex = i / (fibRadii.length - 1);
+                colorWheel.push({
+                    radius: fibRadii[i],
+                    lightness: lerp(minLightness, maxLightness, normalizedIndex)
+                });
+            }
+        }
+
+        function drawColorRing(ring) {
+            for (let angle = 0; angle < 360; angle++) {
+                const hue = angle;
+                const saturation = 100;
+                fill(hue, saturation, ring.lightness);
+                arc(0, 0, ring.radius * 2, ring.radius * 2, radians(angle), radians(angle + 1), PIE);
+            }
+        }
+
+        // p5.js には lerp 関数が組み込まれていますが、明示的に定義しておきます
+        function lerp(start, end, amt) {
+            return start + (end - start) * amt;
+        }
+    </script>
+</body>
+</html>
